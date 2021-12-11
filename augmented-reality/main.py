@@ -36,7 +36,7 @@ def show_detected_pts(video, pts):
     for i in range(video.shape[0]):
         for j in range(pts[i].shape[0]):
             video[i] = cv2.circle(
-                video[i], (int(pts[i][j][1]), int(pts[i][j][0])),
+                video[i], (int(pts[i][j][0]), int(pts[i][j][1])),
                 2, (0, 255, 0), -1)
     return video
 
@@ -61,7 +61,7 @@ def track_pts(vid, initial_pts):
         for t in trackers:
             ok, bbox = t.update(vid[i])
             if ok:
-                new_pts.append((bbox[1] + 4, bbox[0] + 4))
+                new_pts.append((bbox[0] + 4, bbox[1] + 4))
             else:
                 new_pts.append((-1000, -1000))
         pts_by_frame.append(new_pts)
@@ -73,7 +73,7 @@ def calc_proj(pts_2d, pts_3d):
     """
     calculate projection matrix for 3d -> 2d using homogenous coords.
     """
-    pts_2d = np.roll(pts_2d, 1, axis=1)
+    # pts_2d = np.roll(pts_2d, 1, axis=1)
     n_points = pts_3d.shape[0]
     last3_cols = np.zeros((n_points * 2, 3))
     last3_cols[::2] = pts_3d
@@ -95,6 +95,7 @@ def calc_proj(pts_2d, pts_3d):
 
 
 def draw_cube(img, pts2d):
+    """Draw cube for a single frame given the 2d coordinates necessary"""
     imgpts = np.int32(pts2d).reshape(-1, 2)
 
     img = cv2.drawContours(img, [imgpts[:4]], -1, (0, 255, 0), -3)
@@ -128,8 +129,6 @@ def select_initial_pts(video):
 def get_frames(fp):
     cap = cv2.VideoCapture(fp)
     frameCount = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    # frameWidth = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # frameHeight = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     frameWidth = 480
     frameHeight = 640
 

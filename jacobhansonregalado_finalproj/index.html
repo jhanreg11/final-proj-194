@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" context="width=device-width", initial-scale=1.0>
+		<title> CS194-26 Final Projects</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+	</head>
+	<body>
+		<div class="container">
+			<h1 class="fw-light text-center text-lg-start mt-4 mb-0"><b>CS194-26 Final Projects </b></h1>
+			<hr class="mt-2 mb-3">
+			<h2 class="fw-light text-center text-lg-start mt-4 mb-0"><b>Project 1: Gradient Domain Fusion</b></h2>
+			<hr class="mt-2 mb-3">
+			<p class="d-flex justify-content-center">Jacob Hanson-Regalado & Sean Kwan, Fall 2021</p>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 1 Introduction</b></h3>
+			<p style="text-indent: 40px">	The insight that is crucial to this project is that an image's gradient is more important 
+				than it's intensity. We will use this property in order to seamlessly blend a source image and a background image. To achieve
+				this we will 
+			</p>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 1 Part 1: Toy Problem</b></h3>
+			<p style="text-indent: 40px">	To first get a grasp of domain fusion, we first solved a toy example under 3 conditions:
+			</p>
+			<p>	1. Minimize the gradient with respect to x from the source image and our new image. <br>
+				2. Minimize the gradient with respect to y from the source image and our new image. <br>
+				3. Match the top left corners of the source image and our new image. 
+			</p>
+			<p style="text-indent: 40px">	If solved correctly the new image that is constructed will be the orginal image. 
+				To solve these three equations we constructed a least squares equation Av=b, where b is the gradients
+				of the source image, A is the sparse matrix and v is the new image we are trying to solve for. In order to efficiently solve this
+				least squares problem, I used scipy's sparse library, with scipy.sparse.coo_matrix used to construc the sparse A matrix and scipy.sparse.linalg.lsqr
+				to solve the least squares problem. The max error between the two images is: 6.372680161348399e-14
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/toy_problem.png", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Original image</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/toy_img.png", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">New image</p>
+				</div>
+			</div>
+
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 1 Part 2: Poisson Blending</b></h3>
+			<p style="text-indent: 40px"> For poisson blending, we have a mask S on the source image denoting which regions we want to keep on top of the 
+				background image. For each pixel in the mask S, we check the 4-neighbors gradients. If the neighbor v_j is also in the mask S then we proceed 
+				as in the toy problem. If not, then we directly substitute the value for that neighbor v_j to that of the target background image t_j. This 
+				portion is similar to the toy problem, except we have to consider 4 neighbor gradients and a mask. Again, we used sparse matrices to efficiently
+				solve the least squares problem. 
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/gradient-domain-fusion/poissonblend_eq.png", class="img-fluid">
+				</div>
+			</div>
+            
+			<p style="text-indent: 40px">	Below are examples where the poisson blending worked well.
+			</p>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/im2.JPG", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Background Image</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/penguin-chick.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Source Image</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/poisson-penguin-chick.png", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Poisson Image</p>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/im3.jpg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Background Image</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/penguin.jpg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Source Image</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/poisson-penguin.png", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Poisson Image</p>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/pool.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Background Image</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/bear.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Source Image</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/poisson-bear.png", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Poisson Image</p>
+				</div>
+			</div>
+
+			
+
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 1 Bells and Whistles: Mixed Gradients</b></h3>
+			<p style="text-indent: 40px">	For mixed gradients, instead of getting the gradient with respect to the source image, we take the gradient in
+				the source or target image with the larget gradient d_ij. 
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/gradient-domain-fusion/textureblend_eq.png", class="img-fluid">
+				</div>
+			</div>
+
+			<p style="text-indent: 40px">	Below is the effect of using mixed gradients on a source and background image. 
+			</p>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/im2.JPG", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Background Image</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/penguin-chick.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Source Image</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/gradient-domain-fusion/poisson-penguin-chick.png", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Mixed Image</p>
+				</div>
+			</div>
+
+			<h2 class="fw-light text-center text-lg-start mt-4 mb-0"><b>Project 2: A Neural Algorithm of Artistic Style</b></h2>
+			<hr class="mt-2 mb-3">
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 2 Introduction</b></h3>
+			<p style="text-indent: 40px">	The key insight to this project is that the representations of content and style in the Convolutional Neural Network
+				are separable. This means that we can apply the style of an artwork on to the content of a photograph in order to get an image where the photo is
+				in the style of the artwork. 
+			</p>
+
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 2 Part 1: Understanding Content</b></h3>
+			<p style="text-indent: 40px">	To get the content or the general shape and spatial arrangement of the photograph, we get the content representation 
+				from the higher layers in the CNN. WE store the layer representations in a matrix F<sub>ij</sub><sup>l</sup> where its layer l, filter i, position j. 
+				Then for the original image p, we construct a matrix P<sup>l</sup> and for the image to be generated x, we construct a matrix F<sup>l</sup>. The loss 
+				function is: 
+			</p>
+
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/content_loss.png", class="img-fluid">
+				</div>
+			</div>
+
+			<p style="text-indent: 40px">	The derivative of the content loss is:
+			</p>
+
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/d_content_loss.png", class="img-fluid">
+				</div>
+			</div>
+
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 2 Part 2: Understanding Style</b></h3>
+			<p style="text-indent: 40px">	To get the style or the texture of the artwork, we include the feature representations from mutliple, creating a mutli-scale 
+				styler representation. This can be represented by a Gram matrix, G<sup>l</sup> where: 
+			</p>
+
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/gram.png", class="img-fluid">
+				</div>
+			</div>
+			
+			<p style="text-indent: 40px">	To match the style of the original photograph with the style of the artwork, we minimized the mean-squared distance:
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/min.png", class="img-fluid">
+				</div>
+			</div>
+
+			<p style="text-indent: 40px">	This generates the style loss function:
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/style_loss.png", class="img-fluid">
+				</div>
+			</div>
+
+			<p style="text-indent: 40px">	Where the derivative of the style loss is: 
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/d_style_loss.png", class="img-fluid">
+				</div>
+			</div>
+			
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 2 Part 3: Combining Content and Style</b></h3>
+			<p style="text-indent: 40px"> To generate the CNN, we based it off the VGG-19 network. In addition, we combined the content loss and the style loss
+				into a weighted total loss. 
+			</p>
+			<div class="row justify-content-center">
+				<div class="col-md-12 col-xs-6">
+					<img src="./images/neural-style/total_loss.png", class="img-fluid">
+				</div>
+			</div>
+
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 2 Images</b></h3>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/sather.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Content</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/starry_night.jpeg", class="img-fluid">Style</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/starry_sather.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Combined</p>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/sather.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Content</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/der_schrei.jpeg", class="img-fluid">Style</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/scream_sather.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Combined</p>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-center">
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/sather.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Content</p>
+				</div>
+				<div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/femme_nue_assise.jpeg", class="img-fluid">Style</p>
+				</div>
+                <div class="col-md-4 col-xs-6">
+					<img src="./images/neural-style/picasso_sather.jpeg", class="img-fluid">
+					<p class="fw-light text-center text-lg-start mt-0 mb-0">Combined</p>
+				</div>
+			</div>
+			
+			<h2 class="fw-light text-center text-lg-start mt-4 mb-0"><b>Project 3: Augmented Reality</b></h2>
+			<hr class="mt-2 mb-3">
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 3 Introduction</b></h3>
+			<p style="text-indent: 40px">In this project, we utilize 2D points recorded in a video along with their known 
+				3d world coordinates in order to calculate the camera projection matrix and place a 3d cube into the 
+				source video.</p>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Source Video</b></h3>
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/pmMhv051K_8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 3 Part 1: Tracking Keypoints</b></h3>
+			<p style="text-indent: 40px">In this section we select keypoints with known 3D coordinates for the first frame of our video using plt.ginput then utilize the opencv CSRT tracker to track these keypoints through each frame of the video.</p>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Detected Keypoints</b></h3>
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/BGLpP12C01E" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Project 3 Part 2: Calculating projection matrix</b></h3>
+			<p style="text-indent: 40px">In this section we utilize the detected 2d keypoints along with their user-inputted known 3d coordinates to calculate the 3d -> 2d projection matrix for each frame using the following equation:</p>
+			<img src="./images/augmented-reality/proj_eq.png"/>
+			<h3 class="fw-light text-center text-lg-start mt-4 mb-3"><b>Cube!</b></h3>
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/DBGCxfnX7Ak" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+	</body>
+</html>
